@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+build/
+dist/
+*.spec
+config.json
+Tesseract-OCR/
+.vscode/
+.idea/
