@@ -309,13 +309,16 @@ class App:
         if not region:
             return
         img = ocr.grab(region)
-        self._set_thumb("count_region", img)
         try:
             count = ocr.read_number(img)
         except Exception as e:
+            self._set_thumb("count_region", img)
             self.log(f"OCR error: {e}", "danger")
             return
+        # Show what Tesseract sees, so it's easy to spot icons or labels in the box.
+        self._set_thumb("count_region", ocr.processed_preview(img))
         if count is None:
+            ocr.save_unreadable(img)
             self.log("Couldn't read a number there. Try selecting only the digits.", "warn")
         else:
             self.count_var.set(str(count))
@@ -369,7 +372,8 @@ class App:
             self.unread_streak += 1
             self.count_sub.config(text=f"Can't read the count  ·  {now_text()}")
             if self.unread_streak == UNREADABLE_WARNING_AFTER:
-                self.log("Can't read the count. Is the meeting window visible?", "warn")
+                self.log("Can't read the count. Is the meeting window visible? "
+                         f"Captures saved to {ocr.DEBUG_DIR}", "warn")
             return
         if self.unread_streak >= UNREADABLE_WARNING_AFTER:
             self.log("Reading the count again.", "muted")

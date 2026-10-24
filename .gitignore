@@ -10,3 +10,4 @@ config.json
 Tesseract-OCR/
 .vscode/
 .idea/
+debug/

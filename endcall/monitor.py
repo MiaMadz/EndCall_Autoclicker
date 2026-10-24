@@ -2,7 +2,9 @@ import queue
 import threading
 import time
 
-from .ocr import read_count
+from .ocr import read_count, save_unreadable
+
+SAVE_EVERY = 5  # seconds between saving unreadable captures
 
 
 class Monitor:
@@ -30,9 +32,13 @@ class Monitor:
         self.running = False
 
     def _work(self, session, region, interval, stop):
+        last_saved = 0
         while not stop.is_set():
             try:
-                count = read_count(region)
+                count, img = read_count(region)
+                if count is None and time.monotonic() - last_saved > SAVE_EVERY:
+                    save_unreadable(img)
+                    last_saved = time.monotonic()
             except Exception as e:
                 count = e
             self.readings.put((session, time.monotonic(), count))
