@@ -181,7 +181,7 @@ class App:
         unit(c, "sec")
 
         c = row("Check every")
-        spin(c, self.v_interval, 0.5, 10, 0.5)
+        spin(c, self.v_interval, 0.25, 10, 0.25)
         unit(c, "sec")
 
         label(inner, "A number has to be read twice in a row before it counts, so one misread "
@@ -265,7 +265,7 @@ class App:
             "min_count": get(self.v_min, 0, 999, d["min_count"]),
             "drop_amount": get(self.v_drop, 1, 999, d["drop_amount"]),
             "drop_window": get(self.v_window, 2, 120, d["drop_window"]),
-            "interval": get(self.v_interval, 0.5, 10, d["interval"]),
+            "interval": get(self.v_interval, 0.25, 10, d["interval"]),
         }
         self.v_min.set(s["min_count"])
         self.v_drop.set(s["drop_amount"])

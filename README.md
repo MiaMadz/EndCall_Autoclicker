@@ -13,6 +13,7 @@ EndCall watches the participant count in your online meeting (Zoom, Google Meet,
 - **Two rules:** end the call when the count reaches a minimum, or when it drops by a set amount within a few seconds.
 - **Follows the number sequence.** Small steps like 41 → 40 are tracked live, while a big jump has to be read twice before it counts, so one bad read can't end your call.
 - **Accurate reading.** Each capture is read at several sizes and only accepted when the reads agree.
+- **Near-instant.** EndCall learns what each digit looks like on your screen after the first few reads, then reads new numbers in about a millisecond instead of calling the OCR engine each time.
 - **Safe to join early.** The minimum rule only turns on after the count has risen above it.
 - **Drag to select.** You pick the button and the number by dragging a box straight on your screen.
 - **Remembers your setup** between sessions.
@@ -34,7 +35,7 @@ Get the latest `EndCall-x.x.x-windows.zip` from the [Releases](../../releases) p
    |---|---|---|
    | Reaches or goes below | 2 | End when this few people are left (starts once the count has been above it) |
    | Drops by … within … sec | 5 within 10 | End when lots of people leave at once |
-   | Check every | 1 sec | How often the number is read |
+   | Check every | 0.5 sec | How often the number is read (down to 0.25) |
 5. Click **Start monitoring**. EndCall can be minimized, but **the meeting window has to stay visible** and in the same place.
 
 When a rule triggers, EndCall clicks End Call, puts your mouse back where it was, and logs the reason.
@@ -52,7 +53,7 @@ Requires **Windows** and **Python 3.10+**.
 
 ```powershell
 git clone https://github.com/MiaMadz/EndCall_Autoclicker.git
-cd EndCall
+cd EndCall_Autoclicker
 
 # with uv
 uv venv
@@ -75,7 +76,7 @@ Then add Tesseract (see below) and run:
 EndCall uses [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) to read the number. The repo doesn't include it because it's about 100 MB of binaries. To set it up:
 
 1. Install Tesseract for Windows from the [UB Mannheim builds](https://github.com/UB-Mannheim/tesseract/wiki).
-2. Copy the installed `Tesseract-OCR` folder into the project root, so you have `EndCall/Tesseract-OCR/tesseract.exe`.
+2. Copy the installed `Tesseract-OCR` folder into the project root, so you have `Tesseract-OCR/tesseract.exe` next to `main.py`.
 
 EndCall looks for Tesseract in this order:
 
@@ -88,19 +89,19 @@ EndCall looks for Tesseract in this order:
 
 ```powershell
 uv pip install pyinstaller    # or: pip install pyinstaller
-python build.py
+.venv\Scripts\python build.py
 ```
 
 This creates `dist/EndCall/EndCall.exe` and `dist/EndCall-<version>-windows.zip`. The build includes only the parts of Tesseract that OCR needs (the executable, its DLLs, English data and its license), not the training tools.
 
-To publish a release, upload the zip to a new **GitHub Release**.
+Close any running `EndCall.exe` first, since Windows locks its files. To publish a release, upload the zip to a new **GitHub Release**.
 
 To give the .exe your own icon, add `assets/logo.ico`. `assets/logo.png` is used for the window icon and header.
 
 ## Project structure
 
 ```
-EndCall/
+EndCall_Autoclicker/
 ├── main.py                 # entry point
 ├── build.py                # PyInstaller build + zip
 ├── requirements.txt
@@ -115,7 +116,9 @@ EndCall/
 │   ├── config.py           # paths, defaults, saved settings
 │   └── theme.py            # colors and styled widgets
 └── tests/
-    └── test_trigger.py
+    ├── test_trigger.py     # rule tests
+    ├── test_ocr.py         # reads real captures
+    └── fixtures/           # sample captures (count_<number>_*.png)
 ```
 
 Settings are saved to `config.json` in the project folder when running from source, and to `%APPDATA%\EndCall\config.json` for the built app.
@@ -123,8 +126,10 @@ Settings are saved to `config.json` in the project folder when running from sour
 ## Tests
 
 ```powershell
-python -m unittest
+.venv\Scripts\python -m unittest
 ```
+
+The reading tests need Tesseract and are skipped without it.
 
 ## Limitations
 

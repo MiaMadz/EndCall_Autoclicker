@@ -2,7 +2,7 @@ import queue
 import threading
 import time
 
-from .ocr import read_count, save_unreadable
+from .ocr import Reader, read_count, save_unreadable
 
 SAVE_EVERY = 5  # seconds between saving unreadable captures
 
@@ -15,10 +15,16 @@ class Monitor:
         self.stop_event = threading.Event()
         self.session = 0
         self.running = False
+        self.reader = Reader()
+        self.reader_region = None
         root.after(100, self._drain)
 
     def start(self, region, interval):
         self.stop()
+        # Keep learned digits between starts, but relearn if the box moved.
+        if tuple(region) != self.reader_region:
+            self.reader = Reader()
+            self.reader_region = tuple(region)
         self.session += 1
         self.stop_event = threading.Event()
         self.running = True
@@ -35,7 +41,7 @@ class Monitor:
         last_saved = 0
         while not stop.is_set():
             try:
-                count, img = read_count(region)
+                count, img = read_count(region, self.reader)
                 if count is None and time.monotonic() - last_saved > SAVE_EVERY:
                     save_unreadable(img)
                     last_saved = time.monotonic()

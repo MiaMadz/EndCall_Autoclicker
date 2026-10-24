@@ -28,7 +28,7 @@ DEFAULTS = {
     "min_count": 2,          # end when the count is at or below this
     "drop_amount": 5,        # ...or when it falls by this many
     "drop_window": 10,       # ...within this many seconds
-    "interval": 1.0,         # seconds between reads
+    "interval": 0.5,         # seconds between reads
     "tesseract_path": None,  # only used if the bundled copy is missing
 }
 
