@@ -11,7 +11,8 @@ EndCall watches the participant count in your online meeting (Zoom, Google Meet,
 
 - **Works with any meeting app.** It reads the number off your screen, so it doesn't need integrations or logins.
 - **Two rules:** end the call when the count reaches a minimum, or when it drops by a set amount within a few seconds.
-- **Safe against misreads.** A number has to show up twice in a row before it counts, so one bad read can't end your call.
+- **Follows the number sequence.** Small steps like 41 → 40 are tracked live, while a big jump has to be read twice before it counts, so one bad read can't end your call.
+- **Accurate reading.** Each capture is read at several sizes and only accepted when the reads agree.
 - **Safe to join early.** The minimum rule only turns on after the count has risen above it.
 - **Drag to select.** You pick the button and the number by dragging a box straight on your screen.
 - **Remembers your setup** between sessions.
@@ -31,8 +32,8 @@ Get the latest `EndCall-x.x.x-windows.zip` from the [Releases](../../releases) p
 4. Set your rules:
    | Rule | Default | Meaning |
    |---|---|---|
-   | Count is at or below | 2 | End when this few people are left |
-   | Drops by at least … within … sec | 5 within 10 | End when lots of people leave at once |
+   | Reaches or goes below | 2 | End when this few people are left (starts once the count has been above it) |
+   | Drops by … within … sec | 5 within 10 | End when lots of people leave at once |
    | Check every | 1 sec | How often the number is read |
 5. Click **Start monitoring**. EndCall can be minimized, but **the meeting window has to stay visible** and in the same place.
 
@@ -40,7 +41,8 @@ When a rule triggers, EndCall clicks End Call, puts your mouse back where it was
 
 ### Tips
 
-- Select only the digits, not the icon or the label next to them. Use **Test read** to check.
+- Select only the digits, not the icon or the label next to them. Leave room for an extra digit (9 → 10). **Test read** shows exactly what EndCall sees.
+- If the count can't be read, the captures are saved to a `debug` folder (next to `config.json`) so you can see what went wrong.
 - If you move or resize the meeting window, select both areas again.
 - EndCall only clicks the **End Call** button. If your app then asks "Leave meeting?", that confirmation still needs you.
 

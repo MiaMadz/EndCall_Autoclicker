@@ -1,5 +1,6 @@
 import time
 import tkinter as tk
+from collections import deque
 from datetime import datetime
 from tkinter import filedialog
 
@@ -29,6 +30,7 @@ class App:
         self.monitor = Monitor(root, self._on_reading)
         self.rule = None
         self.unread_streak = 0
+        self.recent = deque(maxlen=6)
         self.ui = {}
         self.thumb_photos = {}
         self.spins = []
@@ -168,11 +170,11 @@ class App:
         def unit(parent, text, padx=(6, 0)):
             label(parent, text, "muted", 10).pack(side="left", padx=padx)
 
-        c = row("Count is at or below")
+        c = row("End when the count reaches or goes below")
         spin(c, self.v_min, 0, 999)
         unit(c, "people")
 
-        c = row("Or it drops by at least")
+        c = row("Or when it drops by")
         spin(c, self.v_drop, 1, 999)
         unit(c, "within", padx=6)
         spin(c, self.v_window, 2, 120)
@@ -182,8 +184,10 @@ class App:
         spin(c, self.v_interval, 0.5, 10, 0.5)
         unit(c, "sec")
 
-        label(inner, "A number has to show up twice in a row before it counts, so one misread "
-                     "won't end your call.", "muted", 9, wraplength=500, justify="left"
+        label(inner, "A number has to be read twice in a row before it counts, so one misread "
+                     "won't end your call. The first rule only starts once the count has been "
+                     "above that number, so joining an empty call early is safe.",
+              "muted", 9, wraplength=500, justify="left"
               ).pack(anchor="w", pady=(8, 0))
 
     def _build_tesseract_bar(self, page):
@@ -351,6 +355,7 @@ class App:
         s = self._settings()
         self.rule = TriggerRule(s["min_count"], s["drop_amount"], s["drop_window"])
         self.unread_streak = 0
+        self.recent = deque(maxlen=6)
         self.monitor.start(self.cfg["count_region"], s["interval"])
         self.count_sub.config(text="Starting…")
         self._refresh()
@@ -382,8 +387,11 @@ class App:
         self.count_var.set(str(count))
         reason = self.rule.update(count, now)
         peak = self.rule.recent_peak
-        peak_text = f"Peak {peak} in the last {self.rule.drop_window}s  ·  " if peak is not None else ""
-        self.count_sub.config(text=f"{peak_text}Read at {now_text()}")
+        if not self.recent or self.recent[-1] != count:
+            self.recent.append(count)
+        history = " → ".join(str(n) for n in self.recent)
+        peak_text = f"  ·  peak {peak} in last {self.rule.drop_window}s" if peak is not None else ""
+        self.count_sub.config(text=f"{history}{peak_text}  ·  {now_text()}")
         if reason:
             self._end_call(reason)
 

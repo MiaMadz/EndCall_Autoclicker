@@ -33,5 +33,22 @@ class TriggerRuleTests(unittest.TestCase):
         self.assertIsNone(run(counts, drop_window=10))
 
 
+    def test_follows_a_count_ticking_down_every_read(self):
+        self.assertEqual(run(list(range(30, 15, -1)), min_count=20, drop_amount=99),
+                         (10, "count reached 20"))
+
+    def test_steady_drop_within_window_ends(self):
+        self.assertEqual(run([40, 40, 40, 40, 39, 38, 37, 36, 35], min_count=0),
+                         (8, "count dropped 40 → 35"))
+
+    def test_misread_near_jump_is_ignored(self):
+        # 21 misread as 27 once: too big a jump to trust without a repeat
+        self.assertIsNone(run([21, 21, 27, 21, 21], min_count=0, drop_amount=5))
+
+    def test_mass_exit_needs_one_confirming_read(self):
+        self.assertEqual(run([30, 30, 30, 12, 12], min_count=0, drop_amount=5),
+                         (4, "count dropped 30 → 12"))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -30,7 +30,20 @@ def stage_tesseract():
         shutil.copy2(license_file, TESSERACT_MIN / "LICENSE")
 
 
+def clear_old_build():
+    """Delete the previous build first, with a clear message if it's still running."""
+    old = DIST / "EndCall"
+    if not old.exists():
+        return
+    try:
+        shutil.rmtree(old)
+    except PermissionError:
+        sys.exit("Can't replace dist/EndCall because it's in use. Close EndCall.exe "
+                 "(check Task Manager) and any Explorer window showing that folder, then try again.")
+
+
 def main():
+    clear_old_build()
     stage_tesseract()
     args = [
         sys.executable, "-m", "PyInstaller", "main.py",
