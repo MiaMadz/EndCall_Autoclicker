@@ -4,8 +4,6 @@
 
 EndCall watches the participant count in your online meeting (Zoom, Google Meet, Teams, or any app that shows a number on screen). When the count gets low, or suddenly drops, it clicks the **End Call** button for you. No more sitting alone in a meeting after it has ended.
 
-<!-- Add a screenshot: save it as assets/screenshot.png and uncomment the line below -->
-<!-- ![EndCall screenshot](assets/screenshot.png) -->
 
 ## Features
 
@@ -21,7 +19,7 @@ EndCall watches the participant count in your online meeting (Zoom, Google Meet,
 
 ## Download
 
-Get the latest `EndCall-x.x.x-windows.zip` from the [Releases](../../releases) page. Unzip it and run **`EndCall.exe`**.
+Get the latest `EndCall-x.x-windows.zip` from the [Releases](../../releases) page. Unzip it and run **`EndCall.exe`**.
 
 > Windows may show a SmartScreen warning because the app isn't code-signed. Click **More info → Run anyway**.
 
